@@ -38,8 +38,11 @@ class PeopleCountUpdate(CreateAPIView):
                         status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
-        cam_nam = request.data['cam_name']
-        cam_object = ZoneCamera.objects.get(cam_name=cam_nam)
-        serializer = self.serializer_class(cam_object)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            cam_nam = request.get['cam_name']
+            cam_object = ZoneCamera.objects.get(cam_name=cam_nam)
+            serializer = self.serializer_class(cam_object)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({'Error': 'Wrong input'}, status=status.HTTP_400_BAD_REQUEST)
 
