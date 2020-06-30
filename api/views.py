@@ -5,19 +5,48 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
-from api.models import ZoneCamera, CountLogData
-from api.serializer import ZoneCameraSerializer
+from api.models import ZoneCamera, CountLogData, Beach
+from api.serializer import ZoneCameraSerializer, BeachSerializer
 
 
-class PeopleCountUpdate(GenericAPIView):
+class BeachDetailView(GenericAPIView):
     serializer_class = ZoneCameraSerializer
 
+    def get_queryset(self):
+        try:
+            beach_id = self.kwargs.get('pk')
+            zone_cams = ZoneCamera.objects.filter(beach_id=beach_id)
+            return zone_cams
+        except:
+            return []
+
+    def get(self, request, *args, **kwargs):
+        try:
+            query_set = self.get_queryset()
+            serializer = self.serializer_class(query_set, many=True)
+            cam_list = serializer.data.copy()
+            return JsonResponse({'cam_count': len(cam_list),
+                                 'list': cam_list}, status=status.HTTP_200_OK)
+        except:
+            return JsonResponse({'Error': 'Wrong Input'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ZomeCameraView(GenericAPIView):
+    serializer_class = ZoneCameraSerializer
+
+    def get_queryset(self):
+        try:
+            cam_name = self.kwargs.get('cam_name')
+            cam = ZoneCamera.objects.get(cam_name=cam_name)
+            return cam
+        except:
+            return None
+
     def post(self, request, *args, **kwargs):
-        cam_nam = request.data['cam_name']
-        cam_object = ZoneCamera.objects.get(cam_name=cam_nam)
+        cam_object = self.get_queryset()
         _log_data = {
             'camera': cam_object,
             'count': request.data['count']
@@ -36,10 +65,25 @@ class PeopleCountUpdate(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            cam_nam = request.GET['cam_name']
-            cam_object = ZoneCamera.objects.get(cam_name=cam_nam)
-            serializer = self.serializer_class(cam_object)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            cam_obj = self.get_queryset()
+            serializer = self.serializer_class(cam_obj)
+            obdata = serializer.data.copy()
+            return JsonResponse(obdata, status=status.HTTP_200_OK)
         except:
             return JsonResponse({'Error': 'Wrong input'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class BeachZoneListView(ListAPIView):
+    queryset = Beach.objects.all()
+    serializer_class = BeachSerializer
+    # def get(self, request, *args, **kwargs):
+    #     try:
+    #         query_set = self.get_queryset()
+    #         serializer = self.serializer_class(query_set, many=True)
+    #         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+    #     except:
+    #         return JsonResponse({'Error': 'Wrong Input'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BeachZoneView(GenericAPIView):
+    serializer_class = ZoneCameraSerializer
