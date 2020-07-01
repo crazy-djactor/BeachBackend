@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 
 from django.http import JsonResponse
@@ -8,7 +9,7 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
-from api.models import ZoneCamera, CountLogData, Beach
+from api.models import Zone, CountLogData, Beach
 from api.serializer import ZoneCameraSerializer, BeachSerializer
 
 
@@ -18,7 +19,7 @@ class BeachDetailView(GenericAPIView):
     def get_queryset(self):
         try:
             beach_id = self.kwargs.get('pk')
-            zone_cams = ZoneCamera.objects.filter(beach_id=beach_id)
+            zone_cams = Zone.objects.filter(beach_id=beach_id)
             return zone_cams
         except:
             return []
@@ -34,16 +35,22 @@ class BeachDetailView(GenericAPIView):
             return JsonResponse({'Error': 'Wrong Input'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ZomeCameraView(GenericAPIView):
+class ZomeView(GenericAPIView):
     serializer_class = ZoneCameraSerializer
 
     def get_queryset(self):
         try:
             cam_name = self.kwargs.get('cam_name')
-            cam = ZoneCamera.objects.get(cam_name=cam_name)
+            cam = Zone.objects.get(zone_name=cam_name)
             return cam
         except:
             return None
+
+    @staticmethod
+    def img_decode_b64(img_date, img_name):
+        img_out = open(img_name, 'wb')
+        img_out.write(base64.b64decode(img_date))
+        img_out.close()
 
     def post(self, request, *args, **kwargs):
         cam_object = self.get_queryset()

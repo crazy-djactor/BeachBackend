@@ -25,7 +25,7 @@ urlpatterns = [
     path('api/v1/login', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 
-    path('ap1/v1/zonecam/<slug:cam_name>', views.ZomeCameraView.as_view(), name='zone_detail'),
+    path('ap1/v1/zonecam/<slug:cam_name>', views.ZomeView.as_view(), name='zone_detail'),
     path('ap1/v1/beaches/', views.BeachZoneListView.as_view(), name='beach_list'),
     path('ap1/v1/beaches/<int:pk>', views.BeachDetailView.as_view(), name='beach_detail'),
 ]
