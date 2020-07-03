@@ -67,10 +67,10 @@ class ZomeView(GenericAPIView):
             'count': new_count
         }
         count_offset = new_count - int(cam_object.count)
-        light_state = cam_object.get_light(count=new_count)
+        zone_light_state = cam_object.get_light(count=new_count)
         serializer = ZoneCameraSerializer(cam_object, data={'count': new_count,
                                                             'last_updated': datetime.now(),
-                                                            'light_state': light_state}, partial=True)
+                                                            'light_state': zone_light_state}, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -80,9 +80,9 @@ class ZomeView(GenericAPIView):
         # Beach.update_state(cam_object.beach_id, count_offset)
         try:
             beach_object = Beach.objects.get(id=cam_object.beach_id)
-            count, light_state = beach_object.update_state()
+            count, beach_light_state = beach_object.update_state()
             serializer = BeachSerializer(beach_object, data={'count': count, 'last_updated': datetime.now(),
-                                                             'light_state': light_state}, partial=True)
+                                                             'light_state': beach_light_state}, partial=True)
             if serializer.is_valid():
                 serializer.save()
             else:
@@ -91,7 +91,11 @@ class ZomeView(GenericAPIView):
             return JsonResponse(data={'msg': 'Wrong Parameters'}, status=status.HTTP_400_BAD_REQUEST)
         new_log = CountLogData.objects.create(**_log_data)
         new_log.save()
-        return JsonResponse(data={'date': new_log.date, 'count': new_log.count},
+        return JsonResponse(data={'date': new_log.date,
+                                  'zone_count': new_count,
+                                  'zone_light': zone_light_state,
+                                  'beach_count': count,
+                                  'beach_light': beach_light_state},
                             status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
