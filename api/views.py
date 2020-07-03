@@ -26,10 +26,14 @@ class BeachDetailView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
+            beach = Beach.objects.get(id=kwargs.get('pk'))
+
             query_set = self.get_queryset()
             serializer = self.serializer_class(query_set, many=True)
             cam_list = serializer.data.copy()
             return JsonResponse({'cam_count': len(cam_list),
+                                 'count': beach.count,
+                                 'light_state': beach.light_state,
                                  'list': cam_list}, status=status.HTTP_200_OK)
         except:
             return JsonResponse({'Error': 'Wrong Input'}, status=status.HTTP_400_BAD_REQUEST)
@@ -56,21 +60,39 @@ class ZomeView(GenericAPIView):
         cam_object = self.get_queryset()
         if cam_object is None:
             return JsonResponse(data={'msg': 'Not exist Zone'}, status=status.HTTP_400_BAD_REQUEST)
+        new_count = int(request.data['count'])
+
         _log_data = {
             'camera': cam_object,
-            'count': request.data['count']
+            'count': new_count
         }
-        serializer = ZoneCameraSerializer(cam_object, data={'count': request.data['count'],
-                                                            'last_updated': datetime.now()}, partial=True)
+        count_offset = new_count - int(cam_object.count)
+        light_state = cam_object.get_light(count=new_count)
+        serializer = ZoneCameraSerializer(cam_object, data={'count': new_count,
+                                                            'last_updated': datetime.now(),
+                                                            'light_state': light_state}, partial=True)
+
         if serializer.is_valid():
             serializer.save()
         else:
             return JsonResponse(data={'msg': 'Wrong Parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Beach.update_state(cam_object.beach_id, count_offset)
+        try:
+            beach_object = Beach.objects.get(id=cam_object.beach_id)
+            count, light_state = beach_object.update_state()
+            serializer = BeachSerializer(beach_object, data={'count': count, 'last_updated': datetime.now(),
+                                                             'light_state': light_state}, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return JsonResponse(data={'msg': 'Wrong Parameters'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return JsonResponse(data={'msg': 'Wrong Parameters'}, status=status.HTTP_400_BAD_REQUEST)
         new_log = CountLogData.objects.create(**_log_data)
         new_log.save()
         return JsonResponse(data={'date': new_log.date, 'count': new_log.count},
-                        status=status.HTTP_200_OK)
+                            status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
         try:

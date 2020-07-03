@@ -1,3 +1,5 @@
+import json
+
 from django.db import models
 
 
@@ -5,7 +7,33 @@ class Beach(models.Model):
     beach_name = models.CharField(max_length=255, unique=True)
     location_coord = models.TextField(max_length=255, null=True, default='{}')
     location_degree = models.TextField(max_length=255, null=True, default='{}')
+    count = models.IntegerField(null=True)
+    light_state = models.IntegerField(null=True)
     traffic_level = models.TextField(max_length=255, null=True)
+
+    def update_state(self):
+        try:
+            zone_cams = Zone.objects.filter(beach_id=self.id)
+            count = 0
+            for zone_cam in zone_cams:
+                count = count + zone_cam.count
+
+            traffic_level = json.loads(self.traffic_level)
+            if 'high' in traffic_level.keys() and 'medium' in traffic_level.keys() and 'low' in traffic_level.keys():
+                if count > traffic_level['high']:
+                    light_state = 3
+                elif count > traffic_level['medium']:
+                    light_state = 2
+                elif count > traffic_level['low']:
+                    light_state = 1
+                else:
+                    light_state = 0
+                return count, light_state
+            return 0, 0
+        except:
+            return 0, 0
+
+
 
 
 class Zone(models.Model):
@@ -17,6 +45,20 @@ class Zone(models.Model):
     last_updated = models.DateTimeField(auto_now_add=True, null=True)
     traffic_level = models.TextField(max_length=255, null=True, default='{}')
     light_state = models.IntegerField(null=True)
+
+    def get_light(self, count):
+        traffic_level = json.loads(self.traffic_level)
+        if 'high' in traffic_level.keys() and 'medium' in traffic_level.keys() and 'low' in traffic_level.keys():
+            if count > traffic_level['high']:
+                light_state = 3
+            elif count > traffic_level['medium']:
+                light_state = 2
+            elif count > traffic_level['low']:
+                light_state = 1
+            else:
+                light_state = 0
+            return light_state
+        return 0
 
 
 class CountLogData(models.Model):
