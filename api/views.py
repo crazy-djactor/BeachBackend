@@ -54,6 +54,8 @@ class ZomeView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         cam_object = self.get_queryset()
+        if cam_object is None:
+            return JsonResponse(data={'msg': 'Not exist Zone'}, status=status.HTTP_400_BAD_REQUEST)
         _log_data = {
             'camera': cam_object,
             'count': request.data['count']

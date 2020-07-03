@@ -45,7 +45,8 @@ class BeachSerializer(serializers.ModelSerializer):
     def get_traffic_level(self, obj):
         if obj.traffic_level is None:
             return {}
-        return json.loads(obj.traffic_level)
+        traffic_level = json.loads(obj.traffic_level)
+        return traffic_level
 
     class Meta:
         model = Beach
