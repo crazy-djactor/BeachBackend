@@ -103,6 +103,8 @@ class ZomeView(GenericAPIView):
             cam_obj = self.get_queryset()
             serializer = self.serializer_class(cam_obj)
             obdata = serializer.data.copy()
+            obdata['beach_light'] = cam_obj.beach.light_state
+            obdata['beach_count'] = cam_obj.beach.count
             return JsonResponse(obdata, status=status.HTTP_200_OK)
         except:
             return JsonResponse({'Error': 'Wrong input'}, status=status.HTTP_400_BAD_REQUEST)

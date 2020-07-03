@@ -34,8 +34,6 @@ class Beach(models.Model):
             return 0, 0
 
 
-
-
 class Zone(models.Model):
     beach = models.ForeignKey(Beach, on_delete=models.DO_NOTHING, related_name='zon_cam')
     zone_name = models.CharField(max_length=255, unique=True)
