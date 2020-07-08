@@ -3,7 +3,7 @@
 {% load static i18n %}
 
 {# Setup favicon #}
-{% block extrahead %}<link rel="shortcut icon" type="image/png" href="{{MEDIA_URL}}your_logo.png"/>{% endblock %}
+{% block extrahead %}<link rel="shortcut icon" type="image/png" href="{% static "icon/TLC_Grey_Short.png" %}"/>{% endblock %}
 
 {# Setup browser tab label #}
 {% block title %}{{ title }} |  {% trans "Your title" %}{% endblock %}
@@ -13,7 +13,7 @@
     <h1 id="site-name">
         <a href="{% url 'admin:index' %}">
             {# Your logo here #}
-            <img style="background-color: white" src="{{MEDIA_URL}}your_logo.png" alt="Your Company Name" height="50%" width="50%">
+            <img style="background-color: white" src="{% static "icon/TLC_Grey_Short.png" %}" alt="The LabCompany" height="50%" width="50%">
             <br><br>
             </span> {% trans "Your Branding" %}
         </a>
