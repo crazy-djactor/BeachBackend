@@ -40,7 +40,7 @@ class Zone(models.Model):
     location_coord = models.TextField(max_length=255, null=True, default='{}')
     location_degree = models.TextField(max_length=255, null=True, default='{}')
     count = models.IntegerField(null=True)
-    last_updated = models.DateTimeField(auto_now_add=True, null=True)
+    last_updated = models.DateTimeField(null=True)
     traffic_level = models.TextField(max_length=255, null=True, default='{}')
     light_state = models.IntegerField(null=True)
 

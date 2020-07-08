@@ -68,8 +68,9 @@ class ZomeView(GenericAPIView):
         }
         count_offset = new_count - int(cam_object.count)
         zone_light_state = cam_object.get_light(count=new_count)
+        now = datetime.now()
         serializer = ZoneCameraSerializer(cam_object, data={'count': new_count,
-                                                            'last_updated': datetime.now(),
+                                                            'last_updated': now,
                                                             'light_state': zone_light_state}, partial=True)
 
         if serializer.is_valid():
