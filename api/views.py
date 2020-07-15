@@ -39,6 +39,34 @@ class BeachDetailView(GenericAPIView):
             return JsonResponse({'Error': 'Wrong Input'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BeachDetailViewName(GenericAPIView):
+    serializer_class = ZoneCameraSerializer
+
+    def get_queryset(self):
+        try:
+            beach_name = self.request.GET.get('beach_name')
+            beach = Beach.objects.get(beach_name=beach_name)
+            zone_cams = Zone.objects.filter(beach_id=beach.id)
+            return zone_cams
+        except:
+            return []
+
+    def get(self, request, *args, **kwargs):
+        try:
+            beach_name = request.GET.get('beach_name')
+            beach = Beach.objects.get(beach_name=beach_name)
+            query_set = self.get_queryset()
+            serializer = self.serializer_class(query_set, many=True)
+            cam_list = serializer.data.copy()
+            return JsonResponse({'cam_count': len(cam_list),
+                                 'count': beach.count,
+                                 'light_state': beach.light_state,
+                                 'list': cam_list}, status=status.HTTP_200_OK)
+        except:
+            return JsonResponse({'Error': 'Wrong Input'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class ZomeView(GenericAPIView):
     serializer_class = ZoneCameraSerializer
 

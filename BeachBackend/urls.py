@@ -31,4 +31,5 @@ urlpatterns = [
     path('ap1/v1/zonecam/<slug:cam_name>', views.ZomeView.as_view(), name='zone_detail'),
     path('ap1/v1/beaches/', views.BeachZoneListView.as_view(), name='beach_list'),
     path('ap1/v1/beaches/<int:pk>', views.BeachDetailView.as_view(), name='beach_detail'),
+    path('ap1/v1/beaches/name/', views.BeachDetailViewName.as_view(), name='beach_detail'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
